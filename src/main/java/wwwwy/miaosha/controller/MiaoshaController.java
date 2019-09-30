@@ -8,6 +8,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import wwwwy.miaosha.access.AccessLimit;
 import wwwwy.miaosha.domain.MiaoshaGoods;
 import wwwwy.miaosha.domain.MiaoshaOrder;
 import wwwwy.miaosha.domain.MiaoshaUser;
@@ -20,8 +21,12 @@ import wwwwy.miaosha.service.IGoodsService;
 import wwwwy.miaosha.service.IMiaoshaGoodsService;
 import wwwwy.miaosha.service.IMiaoshaOrderService;
 import wwwwy.miaosha.service.IOrderInfoService;
+import wwwwy.miaosha.util.MD5Util;
+import wwwwy.miaosha.util.UUIDUtil;
 import wwwwy.miaosha.vo.GoodsVo;
 
+import javax.servlet.http.HttpServletRequest;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,14 +48,17 @@ public class MiaoshaController implements InitializingBean {
 	@Autowired
 	MQSender mqSender;
 	private Map<Long,Boolean> goodsMap= new HashMap<>();
-	@PostMapping("do_miaosha")
+	@PostMapping("/{path}/do_miaosha")
 	@ResponseBody
-	public Result<Integer> doMiaosha(Model model, MiaoshaUser user, @RequestParam("goodsId") Long goodsId){
+	public Result<Integer> doMiaosha(Model model, MiaoshaUser user, @RequestParam("goodsId") Long goodsId
+	,@PathVariable("path") String path){
 		model.addAttribute("user",user);
 		if (user==null){
 			return Result.error(CodeMsg.SESSION_ERROR);
 			//return "login";
 		}
+		String o = (String)redisTemplate.opsForValue().get("path" + user.getId() + "_" + goodsId);
+		if (!o.equals(path))return Result.error(CodeMsg.REQUEST_ILLEGAL);
 		//利用map进行标记，减少redis访问
 		if (goodsMap.get(goodsId)) return Result.error(CodeMsg.MIAO_SHA_OVER); ;
 		//预减库存
@@ -130,5 +138,24 @@ public class MiaoshaController implements InitializingBean {
 				return Result.success(0L);
 			}
 		}
+	}
+	@AccessLimit(secounds=5,maxCount=5,needLogin=true)
+	@GetMapping("/path")
+	@ResponseBody
+	public Result<String> getMiaosha(HttpServletRequest request,MiaoshaUser user, @RequestParam("goodsId")long goodsId){
+		if (user==null)return Result.error(CodeMsg.SESSION_ERROR);
+		//查询访问次数，接口限制流量
+		/*String requestURI = request.getRequestURI();
+		Integer num = (Integer) redisTemplate.opsForValue().get("access" + requestURI + "_" + user.getId());
+		if (num==null){
+			redisTemplate.opsForValue().set("access" + requestURI + "_" + user.getId(),1);
+		}else if (num<5){
+			redisTemplate.opsForValue().set("access" + requestURI + "_" + user.getId(),num+1);
+		}else {
+			return Result.error(CodeMsg.ACCESS_LIMIT);
+		}*/
+		String str = MD5Util.md5(UUIDUtil.uuid()+"123456");
+		redisTemplate.opsForValue().set("path"+user.getId()+"_"+goodsId,str);
+		return Result.success(str);
 	}
 }

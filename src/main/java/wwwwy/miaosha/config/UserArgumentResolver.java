@@ -30,7 +30,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 		HttpServletResponse response = nativeWebRequest.getNativeResponse(HttpServletResponse.class);
 		String paramToken = request.getParameter("token");
 		String cookieToken = getCookieValue(request,"token");
-		if (StringUtils.isEmpty(cookieToken)&&StringUtils.isEmpty(cookieToken)) return null;
+		if (StringUtils.isEmpty(paramToken)&&StringUtils.isEmpty(cookieToken)) return null;
 		String token = StringUtils.isEmpty(paramToken)?cookieToken:paramToken;
 		return iMiaoshaUserService.getByToken(response,token);
 	}

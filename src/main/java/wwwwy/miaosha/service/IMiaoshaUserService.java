@@ -18,6 +18,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface IMiaoshaUserService extends IService<MiaoshaUser> {
 
-	boolean login(HttpServletResponse response,LoginVo loginVo);
+	String login(HttpServletResponse response,LoginVo loginVo);
 	MiaoshaUser getByToken(HttpServletResponse response,String token);
 }

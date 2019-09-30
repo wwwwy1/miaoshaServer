@@ -7,15 +7,11 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.Timestamp;
+import java.net.URLConnection;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import ch.qos.logback.core.db.dialect.DBUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.junit.Test;
@@ -23,7 +19,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import wwwwy.miaosha.MainApplication;
 import wwwwy.miaosha.domain.MiaoshaUser;
 import wwwwy.miaosha.service.IMiaoshaUserService;
 @RunWith(SpringRunner.class)
@@ -33,7 +28,7 @@ public class UserUtil {
 	@Autowired
 	  IMiaoshaUserService iMiaoshaUserServicel;
 	@Test
-	public void createUser() throws Exception{
+	public static void createUser() throws Exception{
 		int count = 5000;
 		List<MiaoshaUser> users = new ArrayList<MiaoshaUser>(count);
 		//生成用户
@@ -42,7 +37,7 @@ public class UserUtil {
 			user.setId(13000000000L+i);
 			user.setLoginCount(1);
 			user.setNickname("user"+i);
-			user.setRegisterDate(LocalDateTime.now());
+			user.setRegisterDate(new Date());
 			user.setSalt("1a2b3c");
 			user.setPassword(MD5Util.inputPassToDbPass("123456", user.getSalt()));
 			users.add(user);
@@ -84,7 +79,7 @@ public class UserUtil {
 			JSONObject jo = JSON.parseObject(response);
 			String token = jo.getString("data");
 			System.out.println("create token : " + user.getId());
-			
+
 			String row = user.getId()+","+token;
 			raf.seek(raf.length());
 			raf.write(row.getBytes());
@@ -92,6 +87,7 @@ public class UserUtil {
 			System.out.println("write to file : " + user.getId());
 		}
 		raf.close();
+
 		
 		System.out.println("over");
 	}

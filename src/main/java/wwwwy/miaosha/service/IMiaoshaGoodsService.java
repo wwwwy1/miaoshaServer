@@ -18,4 +18,6 @@ import wwwwy.miaosha.vo.LoginVo;
  */
 public interface IMiaoshaGoodsService extends IService<MiaoshaGoods> {
 	OrderInfo miaosha(MiaoshaUser user, GoodsVo goodsVo);
+	void setGoodsOver(Long goodsId);
+	boolean getGoodsOver(Long goodsId);
 }

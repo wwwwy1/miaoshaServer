@@ -44,7 +44,7 @@ public class MiaoshaUserServiceImpl extends ServiceImpl<MiaoshaUserMapper, Miaos
 	}
 
 	@Override
-	public boolean login(HttpServletResponse response, LoginVo loginVo) {
+	public String login(HttpServletResponse response, LoginVo loginVo) {
 		if (loginVo==null)throw new GlobalException(CodeMsg.SERVER_ERROR);
 		MiaoshaUser user = getByIdMe(Long.parseLong(loginVo.getMobile()));
 		if (user==null)throw new GlobalException(CodeMsg.MOBILE_NOT_EXIST);
@@ -56,7 +56,7 @@ public class MiaoshaUserServiceImpl extends ServiceImpl<MiaoshaUserMapper, Miaos
 		}
 		String token = UUIDUtil.uuid();
 		addCookie(user,token,response);
-		return true;
+		return token;
 	}
 
 	public  boolean updatePassword(long id,String password){

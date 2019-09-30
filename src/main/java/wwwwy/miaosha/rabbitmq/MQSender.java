@@ -1,5 +1,6 @@
 package wwwwy.miaosha.rabbitmq;
 
+import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -14,7 +15,13 @@ public class MQSender {
 
 	@Autowired
 	AmqpTemplate amqpTemplate;
-	public void send(Object message){
+
+	public void sendMiaoshaMessage(MiaoshaMessage miaoshaMessage){
+		String msg = JSON.toJSONString(miaoshaMessage);
+		log.info("send message:"+msg);
+		amqpTemplate.convertAndSend(MQConifg.MIAOSHA_QUEUE,msg);
+	}
+	/*public void send(Object message){
 		String msg = (String) message;
 		log.info("send message:"+msg);
 		amqpTemplate.convertAndSend(MQConifg.QUEUE,msg);
@@ -42,6 +49,6 @@ public class MQSender {
 		properties.setHeader("header2","value2");
 		Message message1=new Message(msg.getBytes(),properties);
 		amqpTemplate.convertAndSend(MQConifg.HEADERS_EXCHANGE,"",message1);
-	}
+	}*/
 
 }

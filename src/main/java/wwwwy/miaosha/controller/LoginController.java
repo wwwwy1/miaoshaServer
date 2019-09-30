@@ -32,10 +32,10 @@ public class LoginController {
 	}
 	@PostMapping("do_login")
 	@ResponseBody
-	public Result<Boolean> doLogin(@Valid LoginVo loginVo, HttpServletResponse response){
+	public Result<String> doLogin(@Valid LoginVo loginVo, HttpServletResponse response){
 		log.info(loginVo.toString());
-		iMiaoshaUserService.login(response,loginVo);
-		return Result.success(true);
+		String token = iMiaoshaUserService.login(response, loginVo);
+		return Result.success(token);
 	}
 
 }

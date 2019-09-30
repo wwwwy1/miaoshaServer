@@ -2,6 +2,7 @@ package wwwwy.miaosha.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wwwwy.miaosha.domain.MiaoshaGoods;
@@ -35,29 +36,43 @@ public class MiaoshaGoodsServiceImpl extends ServiceImpl<MiaoshaGoodsMapper, Mia
 	IOrderInfoService iOrderInfoService;
 	@Autowired
 	IMiaoshaOrderService iMiaoshaOrderService;
-
+	@Autowired
+	RedisTemplate<Object,Object> redisTemplate;
 	@Override
 	@Transactional
 	public OrderInfo miaosha(MiaoshaUser user, GoodsVo goodsVo) {
 		MiaoshaGoods miaoshaGoods=new MiaoshaGoods();
 		miaoshaGoods.setGoodsId(goodsVo.getId());
-		iGoodsService.reduceStock(miaoshaGoods);
-		OrderInfo orderInfo=new OrderInfo();
-		orderInfo.setGoodsId(goodsVo.getId());
-		orderInfo.setDeliveryAddrId(0L);
-		orderInfo.setGoodsCount(1);
-		orderInfo.setGoodsName(goodsVo.getGoodsName());
-		orderInfo.setGoodsPrice(new BigDecimal(goodsVo.getMiaoshaPrice()));
-		orderInfo.setOrderChannel(1);
-		orderInfo.setStatus(0);
-		orderInfo.setUserId(user.getId());
-		iOrderInfoService.save(orderInfo);
-		MiaoshaOrder miaoshaOrder = new MiaoshaOrder();
-		miaoshaOrder.setGoodsId(goodsVo.getId());
-		miaoshaOrder.setOrderId(orderInfo.getId());
-		miaoshaOrder.setUserId(user.getId());
-		iMiaoshaOrderService.save(miaoshaOrder);
-
-		return orderInfo;
+		int i = iGoodsService.reduceStock(miaoshaGoods);
+		if (i>0){
+			OrderInfo orderInfo=new OrderInfo();
+			orderInfo.setGoodsId(goodsVo.getId());
+			orderInfo.setDeliveryAddrId(0L);
+			orderInfo.setGoodsCount(1);
+			orderInfo.setGoodsName(goodsVo.getGoodsName());
+			orderInfo.setGoodsPrice(new BigDecimal(goodsVo.getMiaoshaPrice()));
+			orderInfo.setOrderChannel(1);
+			orderInfo.setStatus(0);
+			orderInfo.setUserId(user.getId());
+			iOrderInfoService.save(orderInfo);
+			MiaoshaOrder miaoshaOrder = new MiaoshaOrder();
+			miaoshaOrder.setGoodsId(goodsVo.getId());
+			miaoshaOrder.setOrderId(orderInfo.getId());
+			miaoshaOrder.setUserId(user.getId());
+			iMiaoshaOrderService.save(miaoshaOrder);
+			return orderInfo;
+		}else {
+			setGoodsOver(goodsVo.getId());
+			return null;
+		}
+	}
+	@Override
+	public void setGoodsOver(Long goodsId) {
+		redisTemplate.opsForValue().set("msgood"+goodsId,"true");
+	}
+	@Override
+	public boolean getGoodsOver(Long goodsId){
+		Object o = redisTemplate.opsForValue().get("msgoods" + goodsId);
+		return o==null?true:false;
 	}
 }

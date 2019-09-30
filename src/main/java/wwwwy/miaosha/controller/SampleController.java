@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import wwwwy.miaosha.domain.User;
 import wwwwy.miaosha.rabbitmq.MQSender;
 import wwwwy.miaosha.result.Result;
+import wwwwy.miaosha.util.UserUtil;
 
 import java.util.concurrent.TimeUnit;
 
@@ -37,7 +38,7 @@ public class SampleController {
 		System.out.println(sd);
 		return o;
 	}
-	@GetMapping("/mq")
+	/*@GetMapping("/mq")
 	@ResponseBody
 	public Result<String> mq(){
 		sender.send("hello");
@@ -61,5 +62,12 @@ public class SampleController {
 	public Result<String> mqHeaders(){
 		sender.sendHeaders("hello,headers");
 		return Result.success("Hello world");
+	}*/
+
+	@GetMapping("fff")
+	@ResponseBody
+	public Object tsssss() throws Exception {
+		UserUtil.createUser();
+		return "ffssdfs";
 	}
 }

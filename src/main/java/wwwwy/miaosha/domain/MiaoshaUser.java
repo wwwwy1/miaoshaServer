@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
 * <p>
@@ -40,10 +41,10 @@ import java.time.LocalDateTime;
     private String head;
 
         @TableField("register_date")
-    private LocalDateTime registerDate;
+    private Date registerDate;
 
         @TableField("last_login_date")
-    private LocalDateTime lastLoginDate;
+    private Date lastLoginDate;
 
         @TableField("login_count")
     private Integer loginCount;

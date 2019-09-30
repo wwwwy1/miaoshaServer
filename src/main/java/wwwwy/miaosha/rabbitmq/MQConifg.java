@@ -22,17 +22,22 @@ public class MQConifg {
 
 	public static final String ROUTING_KEY1="topic.key1";
 	public static final String ROUTING_KEY2="topic.#";
+	public static final String MIAOSHA_QUEUE = "miaosha.queue";
 
+	@Bean
+	public Queue miaoshaQueue(){
+		return new Queue(MIAOSHA_QUEUE);
+	}
 	/*
 	* Direct模式 直连  交换机Exchange
 	* */
-	@Bean
+	/*@Bean
 	public Queue queue(){
 		return new Queue(QUEUE,true);
 	}
-	/*
+	*//*
 	 * Topic模式 主题交换机  交换机Exchange
-	 * */
+	 * *//*
 	@Bean
 	public Queue topicQueue1(){
 		return new Queue(TOPIC_QUEUE1,true);
@@ -55,9 +60,9 @@ public class MQConifg {
 		return BindingBuilder.bind(topicQueue2()).to(topicExchange()).with("topic.#");
 	}
 
-	/*
+	*//*
 	* Fanout模式 广播模式 交换机Exchange
-	* */
+	* *//*
 	@Bean
 	public FanoutExchange fanoutExchange(){
 		return new FanoutExchange(FANOUT_EXCHANGE);
@@ -71,9 +76,9 @@ public class MQConifg {
 		return BindingBuilder.bind(topicQueue2()).to(fanoutExchange());
 	}
 
-	/*
+	*//*
 	 * Headers模式 首部 交换机Exchange
-	 * */
+	 * *//*
 	@Bean
 	public HeadersExchange headersExchange(){
 		return new HeadersExchange(HEADERS_EXCHANGE);
@@ -92,5 +97,5 @@ public class MQConifg {
 		map.put("header1","value1");
 		map.put("header2","value2");
 		return BindingBuilder.bind(headersQueue1()).to(headersExchange()).whereAll(map).match();
-	}
+	}*/
 }
